@@ -20,13 +20,16 @@ _Updated at the end of every working session._
   changelog, and this tracking.
 
 ### Next steps
-1. Create the GitHub repository and push (task 15).
+1. Owner creates an empty private repository `Forenxics/vinyldns-mcp`; then push `main` and tag `v0.1.0` (task 15).
+   Until then, the code is backed up on branch `claude/laughing-franklin-1mgqpl` of `forenxics/vinyldns`.
 2. Try it in Claude Code or Claude Desktop with a real user (task 17).
-3. Decide which optional features (tasks 16 and 18–25) to schedule.
+3. v0.2.0 (agreed): release binaries (16), admin and zone tools (19, 20), HTTP transport (22),
+   live DNS cross-check (23).
 
-### Open questions for the owner
-- Repository visibility (public or private) and name.
-- Which optional features to prioritize.
+### Decisions
+- Private repository `Forenxics/vinyldns-mcp`.
+- SemVer and Keep a Changelog.
+- v0.2.0 scope: tasks 16, 19, 20, 22, 23.
 
 ### Known limitations
 - stdio transport only (one user per process).

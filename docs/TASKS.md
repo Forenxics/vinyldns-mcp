@@ -10,6 +10,7 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 2026-10-04 | Feasibility check: no existing VinylDNS MCP server found (web, package registries, MCP directories) |
 | 2026-10-04 | Decisions: Rust, read + write with confirmation, separate repository, SemVer + changelog |
 | 2026-10-04 | v0.1.0 implemented, tested (unit, end-to-end, live against VinylDNS 0.20.2) and documented |
+| 2026-10-04 | v0.2.0 scope agreed: release binaries, admin tools, live DNS cross-check, HTTP transport |
 
 ## Tasks
 
@@ -29,14 +30,14 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 12 | Documentation (README, configuration, tools, security, development) | Completed | 2026-10-04 |
 | 13 | CHANGELOG + SemVer process | Completed | 2026-10-04 |
 | 14 | CI workflow (fmt, clippy, test, build) | Completed | 2026-10-04 |
-| 15 | Create GitHub repository and push v0.1.0 | Waiting | |
-| 16 | Release workflow: prebuilt binaries for Linux/macOS/Windows on tag | Waiting | |
+| 15 | Create GitHub repository (private `Forenxics/vinyldns-mcp`) and push v0.1.0 | Started (blocked: the session's GitHub app can't create repos; owner creates an empty repo) | |
+| 16 | v0.2.0: release workflow with prebuilt binaries for Linux/macOS/Windows on tag | Waiting (scheduled for v0.2.0) | |
 | 17 | Test with Claude Code / Claude Desktop end to end (elicitation dialog UX) | Waiting | |
 | 18 | Optional: Docker image | Waiting | |
-| 19 | Optional: admin tools: approve/reject batch changes (support/super users) | Waiting | |
-| 20 | Optional: zone tools: connect/update/sync/delete zone, ACL rules | Waiting | |
+| 19 | v0.2.0: admin tools: approve/reject batch changes (support/super users) | Waiting (scheduled for v0.2.0) | |
+| 20 | v0.2.0: zone tools: connect/update/sync/delete zone, ACL rules | Waiting (scheduled for v0.2.0) | |
 | 21 | Optional: group management tools (create group, add/remove members) | Waiting | |
-| 22 | Optional: streamable HTTP transport for shared/remote deployment | Waiting | |
-| 23 | Optional: live DNS cross-check tool (compare VinylDNS data with what resolvers return) | Waiting | |
+| 22 | v0.2.0: streamable HTTP transport for shared/remote deployment (needs per-user auth design) | Waiting (scheduled for v0.2.0) | |
+| 23 | v0.2.0: live DNS cross-check tool (compare VinylDNS data with what resolvers return) | Waiting (scheduled for v0.2.0) | |
 | 24 | Optional: publish to crates.io and MCP registries | Waiting | |
 | 25 | Optional: offer the server upstream to the VinylDNS project | Waiting | |
