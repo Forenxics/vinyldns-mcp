@@ -15,13 +15,28 @@ first and needs your explicit confirmation before it is applied.
 
 ## Quick start
 
-### 1. Build
+### 1. Install
+
+**Prebuilt binary:** download the archive for your platform from the
+[Releases](https://github.com/Forenxics/vinyldns-mcp/releases) page, check it
+against `SHA256SUMS.txt`, extract it, and put `vinyldns-mcp` on your `PATH`.
+Builds are provided for Linux (x86_64 static, ARM64), macOS (Apple silicon,
+Intel) and Windows (x86_64). See [docs/RELEASING.md](docs/RELEASING.md#unsigned-binaries)
+for the macOS and Windows first-run notes.
+
+```sh
+sha256sum -c SHA256SUMS.txt --ignore-missing   # macOS: shasum -a 256 -c …
+tar -xzf vinyldns-mcp-v*-x86_64-unknown-linux-musl.tar.gz
+vinyldns-mcp-v*/vinyldns-mcp --version
+```
+
+**From source** (Rust 1.89+):
 
 ```sh
 cargo install --path .            # or: cargo build --release → target/release/vinyldns-mcp
 ```
 
-Requires Rust 1.88+.
+Run `vinyldns-mcp --help` for a summary of the configuration variables.
 
 ### 2. Get VinylDNS credentials
 
@@ -101,6 +116,7 @@ for the threat model and recommended client settings.
 - [Tool reference](docs/TOOLS.md)
 - [Security model](docs/SECURITY.md)
 - [Development guide](docs/DEVELOPMENT.md): building, testing, the live smoke test, and how request signing is verified
+- [Releasing](docs/RELEASING.md): published binaries and the release process
 - [Project status](docs/PROJECT_STATUS.md) and [task list](docs/TASKS.md)
 - [Changelog](CHANGELOG.md)
 
