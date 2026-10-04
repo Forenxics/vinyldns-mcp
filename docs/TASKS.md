@@ -30,7 +30,7 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 12 | Documentation (README, configuration, tools, security, development) | Completed | 2026-10-04 |
 | 13 | CHANGELOG + SemVer process | Completed | 2026-10-04 |
 | 14 | CI workflow (fmt, clippy, test, build) | Completed | 2026-10-04 |
-| 15 | Create GitHub repository (private `Forenxics/vinyldns-mcp`) and push v0.1.0 | Started (blocked: the session's GitHub app can't create repos; owner creates an empty repo) | |
+| 15 | Create GitHub repository (private `Forenxics/vinyldns-mcp`) and push v0.1.0 | Completed | 2026-10-04 |
 | 16 | v0.2.0: release workflow with prebuilt binaries for Linux/macOS/Windows on tag | Waiting (scheduled for v0.2.0) | |
 | 17 | Test with Claude Code / Claude Desktop end to end (elicitation dialog UX) | Waiting | |
 | 18 | Optional: Docker image | Waiting | |

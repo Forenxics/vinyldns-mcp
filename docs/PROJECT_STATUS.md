@@ -2,7 +2,7 @@
 
 _Updated at the end of every working session._
 
-## Current state: v0.1.0, feature-complete for the first release; not yet published
+## Current state: v0.1.0 released (private repository `Forenxics/vinyldns-mcp`)
 
 **Last session: 2026-10-04**
 
@@ -20,10 +20,8 @@ _Updated at the end of every working session._
   changelog, and this tracking.
 
 ### Next steps
-1. Owner creates an empty private repository `Forenxics/vinyldns-mcp`; then push `main` and tag `v0.1.0` (task 15).
-   Until then, the code is backed up on branch `claude/laughing-franklin-1mgqpl` of `forenxics/vinyldns`.
-2. Try it in Claude Code or Claude Desktop with a real user (task 17).
-3. v0.2.0 (agreed): release binaries (16), admin and zone tools (19, 20), HTTP transport (22),
+1. Try it in Claude Code or Claude Desktop with a real user (task 17).
+2. v0.2.0 (agreed): release binaries (16), admin and zone tools (19, 20), HTTP transport (22),
    live DNS cross-check (23).
 
 ### Decisions
