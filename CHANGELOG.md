@@ -6,6 +6,24 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Release workflow (`.github/workflows/release.yml`): on a `vX.Y.Z` tag (or a manual
+  run), checks that the tag matches `Cargo.toml` and `CHANGELOG.md`, runs the tests,
+  builds Linux x86_64 (static musl), Linux ARM64, macOS ARM64 and x86_64, and Windows
+  x86_64 binaries, then publishes them with `SHA256SUMS.txt`, release notes from
+  the changelog, and build provenance attestations (public repositories).
+- `scripts/changelog_section.py` (with tests) to extract a version's release notes.
+- `--help` / `-h` flag summarising the configuration variables; unknown arguments
+  now exit with status 2.
+- CI: runs the changelog script tests and lints the workflows with actionlint.
+- Documentation: `docs/RELEASING.md`, and prebuilt-binary install steps in the README.
+
+### Changed
+- Minimum supported Rust version is now 1.89 (required by `uuid` 1.27). 0.1.0 stated
+  1.88 by mistake; the CI MSRV job caught it.
+- GitHub Actions updated to Node 24 versions (`checkout@v7`, `upload-artifact@v7`,
+  `download-artifact@v8`, `attest-build-provenance@v4`).
+
 ## [0.1.0] - 2026-10-04
 
 ### Added
