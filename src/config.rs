@@ -52,6 +52,11 @@ pub struct Config {
     pub confirmation: ConfirmationMode,
     /// How long a planned change stays confirmable.
     pub pending_ttl: Duration,
+    /// Nameservers the DNS cross-check queries instead of discovering them
+    /// from NS records (`ip`, `ip:port` or `host[:port]`).
+    pub dns_nameservers: Vec<String>,
+    /// Timeout for each DNS query made by the cross-check.
+    pub dns_timeout: Duration,
 }
 
 impl std::fmt::Debug for Config {
@@ -67,6 +72,8 @@ impl std::fmt::Debug for Config {
             .field("enable_admin", &self.enable_admin)
             .field("confirmation", &self.confirmation)
             .field("pending_ttl", &self.pending_ttl)
+            .field("dns_nameservers", &self.dns_nameservers)
+            .field("dns_timeout", &self.dns_timeout)
             .finish()
     }
 }
@@ -157,6 +164,16 @@ impl Config {
             enable_admin,
             confirmation,
             pending_ttl: parse_secs("VINYLDNS_MCP_PENDING_TTL_SECS", 600)?,
+            dns_nameservers: get("VINYLDNS_MCP_DNS_NAMESERVERS")
+                .map(|v| {
+                    v.split(',')
+                        .map(str::trim)
+                        .filter(|s| !s.is_empty())
+                        .map(String::from)
+                        .collect()
+                })
+                .unwrap_or_default(),
+            dns_timeout: parse_secs("VINYLDNS_MCP_DNS_TIMEOUT_SECS", 3)?,
         })
     }
 
@@ -191,6 +208,8 @@ mod tests {
         let cfg = Config::from_lookup(env(BASE)).unwrap();
         assert!(!cfg.enable_writes);
         assert!(!cfg.enable_admin);
+        assert!(cfg.dns_nameservers.is_empty());
+        assert_eq!(cfg.dns_timeout, Duration::from_secs(3));
         assert_eq!(cfg.confirmation, ConfirmationMode::Auto);
         assert_eq!(cfg.pending_ttl, Duration::from_secs(600));
         assert_eq!(cfg.signing_service, "VinylDNS");
@@ -224,6 +243,14 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    #[test]
+    fn dns_nameservers_are_split() {
+        let mut pairs = BASE.to_vec();
+        pairs.push(("VINYLDNS_MCP_DNS_NAMESERVERS", " 10.0.0.53 , ns2.example.com:5300,, "));
+        let cfg = Config::from_lookup(env(&pairs)).unwrap();
+        assert_eq!(cfg.dns_nameservers, vec!["10.0.0.53", "ns2.example.com:5300"]);
     }
 
     #[test]

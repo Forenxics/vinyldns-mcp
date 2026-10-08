@@ -16,6 +16,8 @@ message that names the variable.
 | `VINYLDNS_HTTP_TIMEOUT_SECS` | no | `30` | Timeout for each VinylDNS API request. |
 | `VINYLDNS_SIGNING_REGION` | no | `us-east-1` | Region in the request signature's credential scope. VinylDNS does not check it. |
 | `VINYLDNS_SIGNING_SERVICE` | no | `VinylDNS` | Service name in the credential scope. VinylDNS does not check it. |
+| `VINYLDNS_MCP_DNS_NAMESERVERS` | no | – | Comma-separated nameservers for the DNS cross-check (`10.0.0.53`, `ns1.example.com:5300`, …). When unset, each zone's nameservers are discovered from its NS records. Set this when the authoritative servers aren't reachable by their public names, e.g. hidden primaries or split-horizon DNS. |
+| `VINYLDNS_MCP_DNS_TIMEOUT_SECS` | no | `3` | Timeout for each DNS query made by the cross-check. |
 | `VINYLDNS_MCP_LOG` | no | `info` | Log filter in [`tracing` `EnvFilter`](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html) syntax, e.g. `debug` or `vinyldns_mcp=debug`. Logs go to **stderr**, because stdout carries the MCP protocol. |
 | `HTTPS_PROXY` / `HTTP_PROXY` / `NO_PROXY` | no | – | Standard proxy variables. The system proxy configuration is honored. |
 
@@ -56,5 +58,10 @@ user.
   credentials would be sent over plain `http` to a remote host. Requests are
   signed, so the secret itself never leaves your machine, but the request
   contents would travel unencrypted.
+- The DNS cross-check needs outbound UDP and TCP port 53 to the nameservers it
+  queries. Some networks redirect all DNS traffic to their own resolver. The
+  check then reports answers as non-authoritative, or gets failures for
+  non-recursive queries; use `VINYLDNS_MCP_DNS_NAMESERVERS` with reachable
+  authoritative servers.
 - Use a separate VinylDNS user for automation if you want its changes to be
   easy to tell apart in the VinylDNS audit history.

@@ -325,6 +325,8 @@ pub struct VinylDnsServer {
     confirmation: ConfirmationMode,
     writes_enabled: bool,
     admin_enabled: bool,
+    dns_nameservers: Vec<String>,
+    dns_timeout: std::time::Duration,
     tool_router: ToolRouter<Self>,
 }
 
@@ -421,6 +423,7 @@ fn validate_ttl(ttl: i64) -> Result<(), String> {
 }
 
 mod admin;
+mod dns_check;
 
 /// Fully qualified name of a record within a zone, for previews.
 fn fqdn(name: &str, zone_name: &str) -> String {
@@ -441,7 +444,7 @@ fn fqdn(name: &str, zone_name: &str) -> String {
 #[tool_router]
 impl VinylDnsServer {
     pub fn new(config: &Config, client: VinylDnsClient) -> Self {
-        let mut tool_router = Self::tool_router() + Self::admin_router();
+        let mut tool_router = Self::tool_router() + Self::admin_router() + Self::dns_router();
         if !config.enable_writes {
             for name in WRITE_TOOLS {
                 tool_router.remove_route(name);
@@ -458,6 +461,8 @@ impl VinylDnsServer {
             confirmation: config.confirmation,
             writes_enabled: config.enable_writes,
             admin_enabled: config.enable_writes && config.enable_admin,
+            dns_nameservers: config.dns_nameservers.clone(),
+            dns_timeout: config.dns_timeout,
             tool_router,
         }
     }
@@ -1190,7 +1195,8 @@ impl ServerHandler for VinylDnsServer {
             .with_instructions(format!(
                 "Tools for the VinylDNS DNS management API. Zone and record set IDs are UUIDs: find them with \
                  list_zones / get_zone (by name) and list_record_sets / search_record_sets. Record changes are \
-                 processed asynchronously. {mode}"
+                 processed asynchronously. To verify that VinylDNS matches what DNS actually serves, use \
+                 check_record_set_dns or check_zone_dns. {mode}"
             ))
     }
 }

@@ -62,6 +62,8 @@ pub fn config(api: &MockServer, enable_writes: bool, confirmation: ConfirmationM
         enable_admin: false,
         confirmation,
         pending_ttl: Duration::from_secs(60),
+        dns_nameservers: Vec::new(),
+        dns_timeout: Duration::from_secs(2),
     }
 }
 

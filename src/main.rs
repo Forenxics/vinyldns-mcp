@@ -23,6 +23,8 @@ OPTIONAL ENVIRONMENT:
     VINYLDNS_MCP_CONFIRMATION      auto | elicit | token (default auto)
     VINYLDNS_MCP_PENDING_TTL_SECS  seconds a planned change stays confirmable (default 600)
     VINYLDNS_HTTP_TIMEOUT_SECS     API request timeout (default 30)
+    VINYLDNS_MCP_DNS_NAMESERVERS   nameservers for the DNS cross-check (default: from NS records)
+    VINYLDNS_MCP_DNS_TIMEOUT_SECS  timeout per DNS query (default 3)
     VINYLDNS_MCP_LOG               log filter, logs go to stderr (default info)
 
 Documentation: docs/CONFIGURATION.md and docs/TOOLS.md in the source repository.";
