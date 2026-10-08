@@ -19,6 +19,7 @@ REQUIRED ENVIRONMENT:
 
 OPTIONAL ENVIRONMENT:
     VINYLDNS_MCP_ENABLE_WRITES     true to enable the plan/confirm write tools (default false)
+    VINYLDNS_MCP_ENABLE_ADMIN      true to also enable zone management and batch review tools
     VINYLDNS_MCP_CONFIRMATION      auto | elicit | token (default auto)
     VINYLDNS_MCP_PENDING_TTL_SECS  seconds a planned change stays confirmable (default 600)
     VINYLDNS_HTTP_TIMEOUT_SECS     API request timeout (default 30)
@@ -59,6 +60,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!(
         url = %config.api_url,
         writes_enabled = config.enable_writes,
+        admin_enabled = config.enable_admin,
         confirmation = ?config.confirmation,
         "starting vinyldns-mcp {}",
         env!("CARGO_PKG_VERSION")

@@ -46,6 +46,9 @@ pub struct Config {
     pub http_timeout: Duration,
     /// Write tools are only registered when this is true.
     pub enable_writes: bool,
+    /// Zone management and batch review tools are only registered when this
+    /// is true. Requires `enable_writes`.
+    pub enable_admin: bool,
     pub confirmation: ConfirmationMode,
     /// How long a planned change stays confirmable.
     pub pending_ttl: Duration,
@@ -61,6 +64,7 @@ impl std::fmt::Debug for Config {
             .field("signing_service", &self.signing_service)
             .field("http_timeout", &self.http_timeout)
             .field("enable_writes", &self.enable_writes)
+            .field("enable_admin", &self.enable_admin)
             .field("confirmation", &self.confirmation)
             .field("pending_ttl", &self.pending_ttl)
             .finish()
@@ -133,6 +137,15 @@ impl Config {
             })?,
         };
 
+        let enable_writes = parse_bool("VINYLDNS_MCP_ENABLE_WRITES", false)?;
+        let enable_admin = parse_bool("VINYLDNS_MCP_ENABLE_ADMIN", false)?;
+        if enable_admin && !enable_writes {
+            return Err(ConfigError::Invalid {
+                name: "VINYLDNS_MCP_ENABLE_ADMIN",
+                reason: "admin tools also need VINYLDNS_MCP_ENABLE_WRITES=true".into(),
+            });
+        }
+
         Ok(Self {
             api_url,
             access_key: required("VINYLDNS_ACCESS_KEY")?,
@@ -140,7 +153,8 @@ impl Config {
             signing_region: get("VINYLDNS_SIGNING_REGION").unwrap_or_else(|| "us-east-1".into()),
             signing_service: get("VINYLDNS_SIGNING_SERVICE").unwrap_or_else(|| "VinylDNS".into()),
             http_timeout: parse_secs("VINYLDNS_HTTP_TIMEOUT_SECS", 30)?,
-            enable_writes: parse_bool("VINYLDNS_MCP_ENABLE_WRITES", false)?,
+            enable_writes,
+            enable_admin,
             confirmation,
             pending_ttl: parse_secs("VINYLDNS_MCP_PENDING_TTL_SECS", 600)?,
         })
@@ -176,6 +190,7 @@ mod tests {
     fn defaults_are_read_only_and_auto_confirmation() {
         let cfg = Config::from_lookup(env(BASE)).unwrap();
         assert!(!cfg.enable_writes);
+        assert!(!cfg.enable_admin);
         assert_eq!(cfg.confirmation, ConfirmationMode::Auto);
         assert_eq!(cfg.pending_ttl, Duration::from_secs(600));
         assert_eq!(cfg.signing_service, "VinylDNS");
@@ -209,6 +224,22 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    #[test]
+    fn admin_requires_writes() {
+        let mut pairs = BASE.to_vec();
+        pairs.push(("VINYLDNS_MCP_ENABLE_ADMIN", "true"));
+        assert!(matches!(
+            Config::from_lookup(env(&pairs)),
+            Err(ConfigError::Invalid {
+                name: "VINYLDNS_MCP_ENABLE_ADMIN",
+                ..
+            })
+        ));
+        pairs.push(("VINYLDNS_MCP_ENABLE_WRITES", "true"));
+        let cfg = Config::from_lookup(env(&pairs)).unwrap();
+        assert!(cfg.enable_writes && cfg.enable_admin);
     }
 
     #[test]

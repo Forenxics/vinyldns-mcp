@@ -17,10 +17,26 @@ All notable changes to this project are documented here. The format follows
   now exit with status 2.
 - CI: runs the changelog script tests and lints the workflows with actionlint.
 - Documentation: `docs/RELEASING.md`, and prebuilt-binary install steps in the README.
+- Admin tools behind the new `VINYLDNS_MCP_ENABLE_ADMIN` setting (which also needs writes):
+  `plan_approve_batch_change` and `plan_reject_batch_change` (support/super users),
+  `plan_connect_zone`, `plan_update_zone`, `plan_sync_zone`, `plan_delete_zone`,
+  `plan_add_zone_acl_rule` and `plan_delete_zone_acl_rule`. All use plan → `confirm_change`.
+  - Zone updates carry over every field you do not change (connections, ACL rules, backend,
+    schedule), because VinylDNS clears omitted fields.
+  - Zone deletion requires the zone name to be typed again, and its preview says the
+    records stay on the DNS server.
+  - TSIG keys are redacted from all previews.
+  - ACL rule removal sends the exact stored rule.
+- Read tools `list_deleted_zones` and `list_backend_ids`.
+- `check_connection` reports whether admin tools are enabled.
+- `scripts/smoke_test_admin.py`: live test of the admin tools against the VinylDNS quickstart.
 
 ### Changed
 - Minimum supported Rust version is now 1.89 (required by `uuid` 1.27). 0.1.0 stated
   1.88 by mistake; the CI MSRV job caught it.
+- Clearer hint for HTTP 403: VinylDNS also uses it for actions that aren't allowed right
+  now (e.g. syncing a zone shortly after the last sync), not only for missing permissions.
+- End-to-end test helpers moved to `tests/common/`.
 - GitHub Actions updated to Node 24 versions (`checkout@v7`, `upload-artifact@v7`,
   `download-artifact@v8`, `attest-build-provenance@v4`).
 

@@ -10,8 +10,10 @@ seeing exactly what will change and approving it.**
    API calls with *your* credentials. It cannot do anything your VinylDNS user
    cannot do. Zone ACLs, shared-zone ownership, manual review of batch changes,
    and the audit trail all apply as usual.
-2. **Read-only by default.** Without `VINYLDNS_MCP_ENABLE_WRITES=true`, the
-   write tools are not registered, so the model cannot call them at all.
+2. **Read-only by default, with tiers.** Without `VINYLDNS_MCP_ENABLE_WRITES=true`,
+   the write tools are not registered, so the model cannot call them at all.
+   Zone management and batch review are a separate tier behind
+   `VINYLDNS_MCP_ENABLE_ADMIN=true`.
 3. **No single tool call changes DNS.** `plan_*` tools only build a preview.
    Only `confirm_change` makes a write call, and it needs a token from a
    previous plan.
@@ -25,7 +27,13 @@ seeing exactly what will change and approving it.**
 6. **Safer updates.** `plan_update_record_set` starts from the current record
    set, so leaving a field out keeps its current value. In particular, it
    avoids a VinylDNS behavior where an update without `ownerGroupId` removes
-   the record's owner group.
+   the record's owner group. `plan_update_zone` does the same for zones,
+   where VinylDNS would otherwise clear the connection, ACL rules and backend
+   of a zone if they were missing from an update.
+7. **Guards on the most destructive actions.** `plan_delete_zone` requires the
+   zone's name to be typed again, and its preview states that the zone will
+   be abandoned. ACL rule removal resolves the exact stored rule, so the model
+   cannot remove a different rule by accident.
 
 ## Recommendations
 
@@ -53,6 +61,11 @@ seeing exactly what will change and approving it.**
   sent over the network.
 - `Config` and `Signer` redact the secret in debug output. Logs go to stderr
   and never include credentials.
+- TSIG keys given to `plan_connect_zone` are sent only to VinylDNS, which
+  encrypts them on receipt. They are replaced with `<redacted>` in every
+  preview and confirmation dialog. Encrypted keys that VinylDNS returns for
+  existing zones are also redacted. Prefer `backend_id` over explicit keys,
+  so secrets don't have to pass through the conversation at all.
 
 ## Reporting vulnerabilities
 

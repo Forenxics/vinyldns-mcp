@@ -1,107 +1,15 @@
 //! End-to-end tests: a real MCP client talks to the server over an in-memory
 //! transport, and the server talks to a mock VinylDNS API (wiremock).
 
-use std::time::Duration;
+mod common;
 
-use rmcp::{
-    ClientHandler, ErrorData as McpError, RoleClient, ServiceExt,
-    model::{
-        CallToolRequestParams, CallToolResult, ClientCapabilities, ClientConfig, ElicitRequestParams, ElicitResult,
-        ElicitationAction, Implementation,
-    },
-    service::{RequestContext, RunningService},
-};
+use common::*;
 use serde_json::{Value, json};
-use url::Url;
-use vinyldns_mcp::{
-    client::VinylDnsClient,
-    config::{Config, ConfirmationMode},
-    server::{VinylDnsServer, WRITE_TOOLS},
-};
+use vinyldns_mcp::{config::ConfirmationMode, server::WRITE_TOOLS};
 use wiremock::{
-    Mock, MockServer, Request, ResponseTemplate,
+    Mock, MockServer, ResponseTemplate,
     matchers::{body_partial_json, header_exists, method, path, query_param},
 };
-
-/// A test MCP client. `elicit_answer` is `None` for a client without
-/// elicitation support; otherwise it is the user's yes/no answer.
-#[derive(Clone)]
-struct TestClient {
-    elicit_answer: Option<bool>,
-}
-
-impl ClientHandler for TestClient {
-    async fn create_elicitation(
-        &self,
-        _request: ElicitRequestParams,
-        _context: RequestContext<RoleClient>,
-    ) -> Result<ElicitResult, McpError> {
-        Ok(match self.elicit_answer {
-            Some(answer) => ElicitResult::new(ElicitationAction::Accept).with_content(json!({ "confirm": answer })),
-            None => ElicitResult::new(ElicitationAction::Decline),
-        })
-    }
-
-    fn get_info(&self) -> ClientConfig {
-        let caps = if self.elicit_answer.is_some() {
-            ClientCapabilities::builder().enable_elicitation().build()
-        } else {
-            ClientCapabilities::default()
-        };
-        ClientConfig::new(caps, Implementation::new("test-client", "0.0.0"))
-    }
-}
-
-fn config(api: &MockServer, enable_writes: bool, confirmation: ConfirmationMode) -> Config {
-    Config {
-        api_url: Url::parse(&api.uri()).unwrap(),
-        access_key: "testAccessKey".into(),
-        secret_key: "testSecretKey".into(),
-        signing_region: "us-east-1".into(),
-        signing_service: "VinylDNS".into(),
-        http_timeout: Duration::from_secs(5),
-        enable_writes,
-        confirmation,
-        pending_ttl: Duration::from_secs(60),
-    }
-}
-
-async fn connect(cfg: Config, client: TestClient) -> RunningService<RoleClient, TestClient> {
-    let (server_io, client_io) = tokio::io::duplex(64 * 1024);
-    let server = VinylDnsServer::new(&cfg, VinylDnsClient::new(&cfg).unwrap());
-    tokio::spawn(async move {
-        if let Ok(running) = server.serve(server_io).await {
-            let _ = running.waiting().await;
-        }
-    });
-    client.serve(client_io).await.expect("MCP handshake")
-}
-
-async fn call(client: &RunningService<RoleClient, TestClient>, tool: &'static str, args: Value) -> CallToolResult {
-    let Value::Object(args) = args else {
-        panic!("args must be an object")
-    };
-    client
-        .call_tool(CallToolRequestParams::new(tool).with_arguments(args))
-        .await
-        .expect("tool call")
-}
-
-fn text(result: &CallToolResult) -> String {
-    result.content[0].as_text().expect("text content").text.clone()
-}
-
-fn json_of(result: &CallToolResult) -> Value {
-    assert_ne!(result.is_error, Some(true), "unexpected tool error: {}", text(result));
-    serde_json::from_str(&text(result)).expect("JSON tool output")
-}
-
-fn signed(req: &Request) -> bool {
-    req.headers
-        .get("authorization")
-        .and_then(|v| v.to_str().ok())
-        .is_some_and(|v| v.starts_with("AWS4-HMAC-SHA256 Credential=testAccessKey/") && v.contains("Signature="))
-}
 
 /// Mocks the zone lookup and empty record set search used by plan_create_record_set.
 async fn mock_zone(api: &MockServer) {

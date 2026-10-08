@@ -8,7 +8,7 @@ first and needs your explicit confirmation before it is applied.
 
 - **Single static binary**, written in Rust with the official [`rmcp`](https://crates.io/crates/rmcp) SDK; talks MCP over stdio.
 - **Uses the normal VinylDNS REST API with your own access keys**, so VinylDNS ACLs, group ownership, approvals and audit history all still apply.
-- **Read-only by default.** Write tools are only registered when `VINYLDNS_MCP_ENABLE_WRITES=true`.
+- **Read-only by default.** Write tools are only registered when `VINYLDNS_MCP_ENABLE_WRITES=true`; zone management and batch review tools also need `VINYLDNS_MCP_ENABLE_ADMIN=true`.
 - **Two-step writes.** `plan_*` tools validate the input, look up current state, and return a preview plus a single-use token. `confirm_change` applies it. Where the client supports [elicitation](https://modelcontextprotocol.io/specification/2025-06-18/client/elicitation), the user is asked directly in a confirmation dialog.
 
 > Status: **v0.1.0** (initial release). Tested against VinylDNS 0.20.2. See [CHANGELOG.md](CHANGELOG.md).
@@ -93,6 +93,13 @@ enabled, *"Point api.example.com at 10.0.0.5 with a 5 minute TTL"*.
 | `plan_cancel_batch_change` | write (plan) | Cancel your own batch change that is still waiting for review |
 | `confirm_change` | write | Applies a plan (and asks the user, when the client supports it) |
 | `list_pending_changes`, `discard_pending_change` | write | Manage plans that have not been applied yet |
+| `list_deleted_zones`, `list_backend_ids` | read | Deleted (abandoned) zones; DNS backends configured on the server |
+| `plan_approve_batch_change`, `plan_reject_batch_change` | admin (plan) | Review batch changes waiting for manual approval (support/super users) |
+| `plan_connect_zone` | admin (plan) | Bring an existing DNS zone under VinylDNS management; TSIG secrets are redacted from previews |
+| `plan_update_zone` | admin (plan) | Change email, admin group, shared flag, backend or sync schedule; everything else is carried over |
+| `plan_sync_zone` | admin (plan) | Re-read the zone from the DNS server |
+| `plan_delete_zone` | admin (plan) | Abandon a zone (records stay in DNS); the zone name must be typed again |
+| `plan_add_zone_acl_rule`, `plan_delete_zone_acl_rule` | admin (plan) | Grant or revoke access to records in a zone |
 
 Full parameter reference: [docs/TOOLS.md](docs/TOOLS.md).
 

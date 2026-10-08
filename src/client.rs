@@ -36,7 +36,9 @@ impl ApiError {
             401 => {
                 Some("The access key / secret key were rejected. Check VINYLDNS_ACCESS_KEY and VINYLDNS_SECRET_KEY.")
             }
-            403 => Some("The VinylDNS user lacks permission for this action (zone admin group or ACL rule required)."),
+            403 => Some(
+                "VinylDNS refused the action: either the user lacks permission (zone admin group, ACL rule, or support/super user role), or it is not allowed right now (e.g. a sync shortly after the last one). The message says which.",
+            ),
             404 => Some(
                 "The referenced zone, record set, group or batch change does not exist or is not visible to this user.",
             ),
@@ -86,8 +88,9 @@ impl VinylDnsClient {
         self.send(Method::PUT, path, &[], Some(body)).await
     }
 
-    pub async fn delete(&self, path: &str) -> Result<Value, ApiError> {
-        self.send(Method::DELETE, path, &[], None).await
+    /// DELETE; most endpoints take no body, but zone ACL rule removal does.
+    pub async fn delete(&self, path: &str, body: Option<&Value>) -> Result<Value, ApiError> {
+        self.send(Method::DELETE, path, &[], body).await
     }
 
     /// Builds the full request URL. Path segments supplied by callers must
