@@ -30,6 +30,13 @@ All notable changes to this project are documented here. The format follows
 - Read tools `list_deleted_zones` and `list_backend_ids`.
 - `check_connection` reports whether admin tools are enabled.
 - `scripts/smoke_test_admin.py`: live test of the admin tools against the VinylDNS quickstart.
+- DNS cross-check tools `check_record_set_dns` and `check_zone_dns` (read-only). They query the
+  zone's authoritative nameservers directly and report, per record set and nameserver:
+  `in_sync`, `ttl_mismatch`, `mismatch` (with the differing values), `missing_in_dns` or `error`.
+  They also note nameservers that disagree, changes still in progress, and non-authoritative
+  answers. Nameservers come from a parameter, from `VINYLDNS_MCP_DNS_NAMESERVERS`, or from
+  the zone's NS records (IPv4 preferred). UDP with TCP fallback; `VINYLDNS_MCP_DNS_TIMEOUT_SECS`.
+- `scripts/smoke_test_dns.py`: live DNS cross-check test, including real drift made with nsupdate.
 
 ### Changed
 - Minimum supported Rust version is now 1.89 (required by `uuid` 1.27). 0.1.0 stated

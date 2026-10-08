@@ -93,6 +93,7 @@ enabled, *"Point api.example.com at 10.0.0.5 with a 5 minute TTL"*.
 | `plan_cancel_batch_change` | write (plan) | Cancel your own batch change that is still waiting for review |
 | `confirm_change` | write | Applies a plan (and asks the user, when the client supports it) |
 | `list_pending_changes`, `discard_pending_change` | write | Manage plans that have not been applied yet |
+| `check_record_set_dns`, `check_zone_dns` | read | Compare VinylDNS with what the authoritative DNS servers actually serve: wrong values, TTL differences, records missing from DNS, nameservers that disagree |
 | `list_deleted_zones`, `list_backend_ids` | read | Deleted (abandoned) zones; DNS backends configured on the server |
 | `plan_approve_batch_change`, `plan_reject_batch_change` | admin (plan) | Review batch changes waiting for manual approval (support/super users) |
 | `plan_connect_zone` | admin (plan) | Bring an existing DNS zone under VinylDNS management; TSIG secrets are redacted from previews |

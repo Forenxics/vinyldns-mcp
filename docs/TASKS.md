@@ -13,6 +13,7 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 2026-10-04 | v0.2.0 scope agreed: release binaries, admin tools, live DNS cross-check, HTTP transport |
 | 2026-10-04 | v0.2.0 started: release workflow (task 16) |
 | 2026-10-08 | PR #1 (release workflow, CI fixes) merged; admin and zone tools implemented (tasks 19, 20) |
+| 2026-10-08 | PR #2 (admin and zone tools) merged; DNS cross-check implemented (task 23) |
 
 ## Tasks
 
@@ -40,12 +41,13 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 16c | Tag `v0.1.0` on GitHub (the session cannot push tags; owner creates it) | Waiting | |
 | 17 | Test with Claude Code / Claude Desktop end to end (elicitation dialog UX) | Waiting | |
 | 18 | Optional: Docker image | Waiting | |
-| 19 | v0.2.0: admin tools: approve/reject batch changes (support/super users) | Testing (unit, end-to-end and live tests pass; awaiting PR review and CI) | |
-| 20 | v0.2.0: zone tools: connect/update/sync/delete zone, ACL rules | Testing (unit, end-to-end and live tests pass; awaiting PR review and CI) | |
-| 20a | `VINYLDNS_MCP_ENABLE_ADMIN` setting; `list_deleted_zones`, `list_backend_ids` read tools | Testing | |
+| 19 | v0.2.0: admin tools: approve/reject batch changes (support/super users) | Completed | 2026-10-08 |
+| 20 | v0.2.0: zone tools: connect/update/sync/delete zone, ACL rules | Completed | 2026-10-08 |
+| 20a | `VINYLDNS_MCP_ENABLE_ADMIN` setting; `list_deleted_zones`, `list_backend_ids` read tools | Completed | 2026-10-08 |
 | 20b | Live admin smoke test (`scripts/smoke_test_admin.py`) | Completed | 2026-10-08 |
 | 21 | Optional: group management tools (create group, add/remove members) | Waiting | |
 | 22 | v0.2.0: streamable HTTP transport for shared/remote deployment (needs per-user auth design) | Waiting (scheduled for v0.2.0) | |
-| 23 | v0.2.0: live DNS cross-check tool (compare VinylDNS data with what resolvers return) | Waiting (scheduled for v0.2.0) | |
+| 23 | v0.2.0: live DNS cross-check tool (compare VinylDNS data with what resolvers return) | Testing (unit, end-to-end and live tests pass; awaiting PR and CI) | |
+| 23a | Prefer IPv4 nameserver addresses (found while testing: IPv6-first failed on IPv4-only hosts) | Completed | 2026-10-08 |
 | 24 | Optional: publish to crates.io and MCP registries | Waiting | |
 | 25 | Optional: offer the server upstream to the VinylDNS project | Waiting | |

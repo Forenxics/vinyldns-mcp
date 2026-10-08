@@ -58,6 +58,45 @@ it back as `start_from`.
 | `list_pending_changes` | – | Lists plans that have not expired |
 | `discard_pending_change` | `token` | – |
 
+## DNS cross-check (read-only, always available)
+
+These tools compare what VinylDNS *thinks* is in a zone with what DNS
+actually serves. Queries go **directly to the authoritative nameservers**: they
+are non-recursive and not cached, over UDP with a TCP retry when an answer is
+truncated.
+
+| Tool | Parameters | What it does |
+|---|---|---|
+| `check_record_set_dns` | `zone_id`, `record_set_id`, `nameservers?` | Checks one record set on each nameserver |
+| `check_zone_dns` | `zone_id`, `nameservers?`, `name_filter?`, `type_filter?`, `max_record_sets?` (default 200, max 1000), `include_in_sync?` | Checks every record set in the zone, eight at a time. Returns counts per status, full details for up to 50 problems (then names only), and whether the list was cut off. |
+
+**Which nameservers are queried:**
+1. the `nameservers` parameter (`ip`, `ip:port`, `[v6]:port` or `host[:port]`);
+2. otherwise `VINYLDNS_MCP_DNS_NAMESERVERS`;
+3. otherwise the zone's own NS records, looked up with the system resolver (up to
+   4 servers, IPv4 preferred).
+
+**Status per record set** (the worst result across nameservers):
+
+| Status | Meaning |
+|---|---|
+| `in_sync` | Same records (and the same TTL, for authoritative answers) |
+| `ttl_mismatch` | Same records, different TTL |
+| `mismatch` | The records differ: `only_in_vinyldns` and `only_in_dns` list the differences |
+| `missing_in_dns` | DNS returns nothing for the name and type (NXDOMAIN or no data) |
+| `error` | The nameserver timed out, refused, or failed |
+| `skipped` | SOA (its serial changes on every update) or a type the check does not support |
+
+Notes are added when nameservers disagree with each other (e.g. a lagging
+secondary), when VinylDNS has a change in progress for the record set, or when
+an answer lacks the authoritative flag. That last case usually means a cache,
+a forwarder, or a network that intercepts DNS; TTLs are then not compared.
+
+**Limits:** the check goes one way, from VinylDNS to DNS. Records that exist only
+in DNS are not found; `plan_sync_zone` pulls those into VinylDNS. Values are
+compared in canonical form: lower-cased names with a trailing dot, canonical
+IPv6, TXT strings joined, hex digests lower-cased.
+
 ## Admin tools (only when `VINYLDNS_MCP_ENABLE_ADMIN=true`)
 
 Zone management and batch review. They use the same plan → `confirm_change`

@@ -55,6 +55,13 @@ seeing exactly what will change and approving it.**
 - Prompt injection that convinces the *user* to approve something. Previews
   show the exact request body so the user can check it.
 
+## DNS cross-check
+
+`check_record_set_dns` and `check_zone_dns` are read-only. They send plain
+DNS queries (no credentials) for the names in a zone to its nameservers, or
+to the servers you name. Those servers therefore see which names were looked
+up.
+
 ## Secrets handling
 
 - The secret key is only used locally to compute HMAC signatures. It is never
