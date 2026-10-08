@@ -35,6 +35,19 @@ pub const WRITE_TOOLS: &[&str] = &[
     "confirm_change",
 ];
 
+/// Zone management and batch review tools. Registered only when
+/// `VINYLDNS_MCP_ENABLE_ADMIN=true` (which also requires writes).
+pub const ADMIN_TOOLS: &[&str] = &[
+    "plan_approve_batch_change",
+    "plan_reject_batch_change",
+    "plan_connect_zone",
+    "plan_update_zone",
+    "plan_sync_zone",
+    "plan_delete_zone",
+    "plan_add_zone_acl_rule",
+    "plan_delete_zone_acl_rule",
+];
+
 // ---------------------------------------------------------------------------
 // Tool parameter types
 // ---------------------------------------------------------------------------
@@ -311,6 +324,7 @@ pub struct VinylDnsServer {
     pending: Arc<PendingStore>,
     confirmation: ConfirmationMode,
     writes_enabled: bool,
+    admin_enabled: bool,
     tool_router: ToolRouter<Self>,
 }
 
@@ -406,6 +420,8 @@ fn validate_ttl(ttl: i64) -> Result<(), String> {
     }
 }
 
+mod admin;
+
 /// Fully qualified name of a record within a zone, for previews.
 fn fqdn(name: &str, zone_name: &str) -> String {
     let zone = if zone_name.ends_with('.') {
@@ -425,9 +441,14 @@ fn fqdn(name: &str, zone_name: &str) -> String {
 #[tool_router]
 impl VinylDnsServer {
     pub fn new(config: &Config, client: VinylDnsClient) -> Self {
-        let mut tool_router = Self::tool_router();
+        let mut tool_router = Self::tool_router() + Self::admin_router();
         if !config.enable_writes {
             for name in WRITE_TOOLS {
+                tool_router.remove_route(name);
+            }
+        }
+        if !(config.enable_writes && config.enable_admin) {
+            for name in ADMIN_TOOLS {
                 tool_router.remove_route(name);
             }
         }
@@ -436,6 +457,7 @@ impl VinylDnsServer {
             pending: Arc::new(PendingStore::new(config.pending_ttl)),
             confirmation: config.confirmation,
             writes_enabled: config.enable_writes,
+            admin_enabled: config.enable_writes && config.enable_admin,
             tool_router,
         }
     }
@@ -454,6 +476,7 @@ impl VinylDnsServer {
             "credentials_valid": auth.is_ok(),
             "credentials_error": auth.err().map(|e| e.to_string()),
             "writes_enabled": self.writes_enabled,
+            "admin_enabled": self.admin_enabled,
         }))
     }
 
@@ -1101,11 +1124,10 @@ impl VinylDnsServer {
             ),
             PlannedAction::DeleteRecordSet { zone_id, record_set_id } => (
                 self.client
-                    .delete(&format!(
-                        "zones/{}/recordsets/{}",
-                        segment(zone_id),
-                        segment(record_set_id)
-                    ))
+                    .delete(
+                        &format!("zones/{}/recordsets/{}", segment(zone_id), segment(record_set_id)),
+                        None,
+                    )
                     .await,
                 "Processing is asynchronous: poll get_record_set_change until status is Complete or Failed (it can return 404 for a few seconds while the change is queued).",
             ),
@@ -1132,6 +1154,7 @@ impl VinylDnsServer {
                     .await,
                 "The batch change is cancelled and will not be applied.",
             ),
+            admin_action => self.apply_admin(admin_action).await,
         };
         match result {
             Ok(v) => ok_json(json!({ "applied": change.summary, "result": v, "next_step": follow_up })),
@@ -1146,11 +1169,17 @@ impl VinylDnsServer {
 #[tool_handler(router = self.tool_router)]
 impl ServerHandler for VinylDnsServer {
     fn get_info(&self) -> ServerConfig {
-        let mode = if self.writes_enabled {
-            "Writes are ENABLED but always two-step: plan_* tools only return a preview and a token; \
-             confirm_change applies it. Always show the preview to the user and get explicit approval before confirm_change."
-        } else {
-            "Read-only mode: no tools can change DNS."
+        let mode = match (self.writes_enabled, self.admin_enabled) {
+            (false, _) => "Read-only mode: no tools can change DNS.",
+            (true, false) => {
+                "Writes are ENABLED but always two-step: plan_* tools only return a preview and a token; \
+                 confirm_change applies it. Always show the preview to the user and get explicit approval before confirm_change."
+            }
+            (true, true) => {
+                "Writes and ADMIN tools (zone management, batch review) are ENABLED, always two-step: plan_* tools \
+                 only return a preview and a token; confirm_change applies it. Always show the preview to the user and \
+                 get explicit approval before confirm_change. Zone changes affect every record in the zone."
+            }
         };
         ServerConfig::new(ServerCapabilities::builder().enable_tools().build())
             .with_server_info(

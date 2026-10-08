@@ -13,7 +13,7 @@ example by auto-approving reads only.
 
 | Tool | Parameters | VinylDNS endpoint |
 |---|---|---|
-| `check_connection` | – | `GET /status` plus an authenticated probe (`GET /groups?maxItems=1`) |
+| `check_connection` | – | `GET /status` plus an authenticated probe (`GET /groups?maxItems=1`); also reports whether writes and admin tools are enabled |
 | `list_zones` | `name_filter?`, `start_from?`, `max_items?`, `search_by_admin_group?`, `ignore_access?`, `include_reverse?` | `GET /zones` |
 | `get_zone` | `zone_id` **or** `zone_name` | `GET /zones/{id}` or `GET /zones/name/{name}` |
 | `list_zone_changes` | `zone_id`, `start_from?`, `max_items?` | `GET /zones/{id}/changes` |
@@ -57,6 +57,28 @@ it back as `start_from`.
 | `confirm_change` | `token` | See below |
 | `list_pending_changes` | – | Lists plans that have not expired |
 | `discard_pending_change` | `token` | – |
+
+## Admin tools (only when `VINYLDNS_MCP_ENABLE_ADMIN=true`)
+
+Zone management and batch review. They use the same plan → `confirm_change`
+flow as the record tools. VinylDNS still enforces who may do what: zone
+changes need membership of the zone's admin group, and batch review needs a
+support or super user.
+
+| Tool | Parameters | Checks done before returning a plan |
+|---|---|---|
+| `plan_approve_batch_change` | `id`, `review_comment?` | Batch change is in `PendingReview`; preview lists every change with its status and validation errors; warns about scheduled batches |
+| `plan_reject_batch_change` | `id`, `review_comment?` | Batch change is in `PendingReview` |
+| `plan_connect_zone` | `name`, `email`, `admin_group_id`, `backend_id?`, `shared?`, `connection?`, `transfer_connection?` (each `{key_name, key, primary_server, algorithm?}`) | Zone not already connected; admin group exists; `backend_id` is configured; email format. The TSIG `key` is **redacted** in the preview. |
+| `plan_update_zone` | `zone_id`, `email?`, `admin_group_id?`, `shared?`, `backend_id?`, `recurrence_schedule?` (empty string clears it) | Fetches the zone and carries over **all** fields you do not change (connections, ACL rules, backend, schedule), because VinylDNS clears omitted fields. Before/after diff; refuses no-op updates. |
+| `plan_sync_zone` | `zone_id` | Shows current status and last sync; warns if the zone is not Active. VinylDNS refuses syncs shortly after the previous one. |
+| `plan_delete_zone` | `zone_id`, `confirm_zone_name` | `confirm_zone_name` must match the zone's name (case and trailing dot ignored); shows the record set count. **Deleting abandons the zone: VinylDNS stops managing it, but the records stay on the DNS server.** |
+| `plan_add_zone_acl_rule` | `zone_id`, `access_level` (`NoAccess`, `Read`, `Write`, `Delete`), `user_id?` **or** `group_id?`, `record_mask?` (regex), `record_types?`, `description?` | Not both user and group; record types are valid; no identical rule exists; warns when the rule applies to all users |
+| `plan_delete_zone_acl_rule` | same as add | Finds the rule among the zone's current rules (ignoring type order; `description` only needed when two rules differ only by it) and sends the stored rule exactly, because VinylDNS removes rules by exact match. Lists the current rules if none match. |
+
+Read-only helpers that are always available: `list_deleted_zones`
+(`name_filter?`, `ignore_access?`, `start_from?`, `max_items?`) and
+`list_backend_ids`.
 
 ### `confirm_change`
 

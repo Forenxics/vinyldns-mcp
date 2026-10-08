@@ -74,10 +74,10 @@ def ensure_zone():
 
 
 class Mcp:
-    def __init__(self):
-        env = dict(os.environ, VINYLDNS_API_URL=API, VINYLDNS_ACCESS_KEY=AK, VINYLDNS_SECRET_KEY=SK,
-                   VINYLDNS_MCP_ENABLE_WRITES="true", VINYLDNS_MCP_CONFIRMATION="auto",
-                   VINYLDNS_MCP_LOG="warn")
+    def __init__(self, access_key=None, secret_key=None, **extra_env):
+        env = dict(os.environ, VINYLDNS_API_URL=API, VINYLDNS_ACCESS_KEY=access_key or AK,
+                   VINYLDNS_SECRET_KEY=secret_key or SK, VINYLDNS_MCP_ENABLE_WRITES="true",
+                   VINYLDNS_MCP_CONFIRMATION="auto", VINYLDNS_MCP_LOG="warn", **extra_env)
         self.p = subprocess.Popen([BINARY], stdin=subprocess.PIPE, stdout=subprocess.PIPE, env=env, text=True)
         self.next_id = 0
         init = self.request("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},

@@ -2,26 +2,32 @@
 
 _Updated at the end of every working session._
 
-## Current state: v0.1.0 released; v0.2.0 in progress (release binaries done, awaiting first real run)
+## Current state: v0.1.0 released; v0.2.0 in progress (release workflow merged; admin and zone tools awaiting review)
 
-**Last session: 2026-10-04 (second session: release pipeline)**
+**Last session: 2026-10-08 (session 3: admin and zone tools)**
 
 ### Done this session
-- Added `.github/workflows/release.yml`: tag-triggered or manual. It checks the tag
-  against `Cargo.toml` and `CHANGELOG.md`, runs the tests, builds 5 targets (Linux
-  x86_64 static musl, Linux ARM64, macOS ARM64 and x86_64, Windows x86_64), and
-  publishes archives, `SHA256SUMS.txt`, notes from the changelog, and provenance
-  attestations (public repositories only).
-- Checked locally: both Linux targets cross-compile; packaging and checksums work;
-  the static binary passed the full live smoke test against VinylDNS 0.20.2 and
-  makes HTTPS connections using the system certificate store. actionlint
-  (with shellcheck) reports no problems.
-- Not checkable here: the macOS and Windows builds, and the publish job. These run
-  for the first time at the next tag.
-- Added the `--help` flag; CI now lints workflows and tests the changelog script.
-- First CI run on `main`: Linux, macOS and Windows passed; the MSRV job failed (uuid needs
-  Rust 1.89). Fixed: MSRV is now 1.89 (checked locally), and the actions use Node 24 versions.
-- Docs: new `docs/RELEASING.md`; install-from-release steps in the README.
+- Merged PR #1 (release workflow and CI fixes) after all 5 CI checks passed.
+- Added the admin tier (`VINYLDNS_MCP_ENABLE_ADMIN`, which also needs writes) with 8 plan tools:
+  - batch review: approve and reject;
+  - zone management: connect, update, sync, delete;
+  - zone ACL rules: add and delete.
+  Also added 2 read tools: `list_deleted_zones` and `list_backend_ids`.
+- Safety details:
+  - zone updates carry over every field VinylDNS would otherwise clear;
+  - zone delete requires the zone name to be typed again;
+  - TSIG keys are redacted from previews;
+  - ACL rule delete sends the exact stored rule.
+- Tests: 24 unit and 22 end-to-end tests pass; clippy reports no warnings; the build works on Rust 1.89.
+  - Live (VinylDNS 0.20.2 quickstart): connect, ACL add and remove, update (ACL and connection kept;
+    a record write afterwards completed), delete, and a batch that went to manual review was
+    approved by the support user. A regular user's approval got 403, as expected.
+  - Sync was correctly refused because the zone had just synced; this led to a clearer 403 hint.
+- Docs: README tools table, TOOLS, CONFIGURATION, SECURITY, DEVELOPMENT, CHANGELOG, `--help`.
+
+### Earlier (session 2: release pipeline)
+- Release workflow for 5 targets, with `SHA256SUMS.txt` and notes from the changelog; `--help`;
+  workflow lint in CI; `docs/RELEASING.md`.
 
 ### Earlier (session 1)
 - v0.1.0: 15 read tools, 8 write and pending-change tools with plan/confirm and
@@ -29,12 +35,10 @@ _Updated at the end of every working session._
   private repository `Forenxics/vinyldns-mcp`.
 
 ### Next steps
-1. Owner: create tag `v0.1.0` on GitHub (task 16c). Binaries start at v0.2.0,
-   because the v0.1.0 commit predates the release scripts.
-2. Check that CI is green after this push (MSRV fix, workflow lint job).
-3. Continue v0.2.0: admin and zone tools (19, 20), live DNS cross-check (23),
-   HTTP transport (22). Then release v0.2.0, which is the first real run of the
-   release workflow.
+1. Review and merge the admin and zone tools PR (branch `feature/admin-zone-tools`) once CI is green.
+2. Owner: create tag `v0.1.0` on GitHub (task 16c).
+3. Finish v0.2.0: live DNS cross-check (23) and HTTP transport (22). Then release v0.2.0,
+   which is the first real run of the release workflow.
 4. Try it in Claude Code or Claude Desktop (task 17).
 
 ### Decisions
@@ -46,4 +50,5 @@ _Updated at the end of every working session._
 - stdio transport only (one user per process).
 - Plans live in memory and are lost when the server restarts. This is intended:
   a stale plan should not survive a restart.
-- No zone, group, or batch approval administration yet.
+- No group management tools yet (task 21).
+- Zone connections (TSIG keys) can be set when connecting a zone, but not changed by `plan_update_zone`.

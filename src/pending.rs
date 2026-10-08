@@ -38,6 +38,35 @@ pub enum PlannedAction {
     CancelBatchChange {
         batch_change_id: String,
     },
+    ApproveBatchChange {
+        batch_change_id: String,
+        body: Value,
+    },
+    RejectBatchChange {
+        batch_change_id: String,
+        body: Value,
+    },
+    ConnectZone {
+        body: Value,
+    },
+    UpdateZone {
+        zone_id: String,
+        body: Value,
+    },
+    SyncZone {
+        zone_id: String,
+    },
+    DeleteZone {
+        zone_id: String,
+    },
+    AddZoneAclRule {
+        zone_id: String,
+        body: Value,
+    },
+    DeleteZoneAclRule {
+        zone_id: String,
+        body: Value,
+    },
 }
 
 impl PlannedAction {
@@ -48,6 +77,14 @@ impl PlannedAction {
             Self::DeleteRecordSet { .. } => "delete_record_set",
             Self::SubmitBatchChange { .. } => "submit_batch_change",
             Self::CancelBatchChange { .. } => "cancel_batch_change",
+            Self::ApproveBatchChange { .. } => "approve_batch_change",
+            Self::RejectBatchChange { .. } => "reject_batch_change",
+            Self::ConnectZone { .. } => "connect_zone",
+            Self::UpdateZone { .. } => "update_zone",
+            Self::SyncZone { .. } => "sync_zone",
+            Self::DeleteZone { .. } => "delete_zone",
+            Self::AddZoneAclRule { .. } => "add_zone_acl_rule",
+            Self::DeleteZoneAclRule { .. } => "delete_zone_acl_rule",
         }
     }
 }

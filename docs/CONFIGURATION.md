@@ -10,6 +10,7 @@ message that names the variable.
 | `VINYLDNS_ACCESS_KEY` | yes | – | Your VinylDNS access key. |
 | `VINYLDNS_SECRET_KEY` | yes | – | Your VinylDNS secret key. It is never logged or shown in debug output. |
 | `VINYLDNS_MCP_ENABLE_WRITES` | no | `false` | When `true`, registers the `plan_*`, `confirm_change` and pending-change tools. When `false`, those tools do not exist for the client at all. |
+| `VINYLDNS_MCP_ENABLE_ADMIN` | no | `false` | When `true`, also registers the zone management and batch review tools (`plan_connect_zone`, `plan_update_zone`, `plan_sync_zone`, `plan_delete_zone`, ACL rule tools, `plan_approve_batch_change`, `plan_reject_batch_change`). Requires `VINYLDNS_MCP_ENABLE_WRITES=true`; the server refuses to start otherwise. |
 | `VINYLDNS_MCP_CONFIRMATION` | no | `auto` | How `confirm_change` gets human approval: `auto` uses an elicitation dialog when the client supports it and otherwise relies on the client's tool approval prompt; `elicit` always requires a dialog and refuses to apply changes on clients without elicitation support; `token` never shows a dialog. |
 | `VINYLDNS_MCP_PENDING_TTL_SECS` | no | `600` | How long a plan can be confirmed before it expires. |
 | `VINYLDNS_HTTP_TIMEOUT_SECS` | no | `30` | Timeout for each VinylDNS API request. |
@@ -36,6 +37,18 @@ VINYLDNS_MCP_CONFIRMATION=auto
 VINYLDNS_MCP_ENABLE_WRITES=true
 VINYLDNS_MCP_CONFIRMATION=elicit
 ```
+
+**Zone administrators and reviewers:** add the admin tools.
+
+```
+VINYLDNS_MCP_ENABLE_WRITES=true
+VINYLDNS_MCP_ENABLE_ADMIN=true
+VINYLDNS_MCP_CONFIRMATION=elicit
+```
+
+Only enable this for users who administer zones or review batch changes.
+Approving and rejecting batch changes also needs a VinylDNS support or super
+user.
 
 ## Notes
 
