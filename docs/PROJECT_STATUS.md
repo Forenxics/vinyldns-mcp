@@ -2,29 +2,21 @@
 
 _Updated at the end of every working session._
 
-## Current state: v0.1.0 released; v0.2.0 nearly done (DNS cross-check awaiting review; HTTP transport left)
+## Current state: v0.2.0 being released (first run of the release workflow)
 
-**Last session: 2026-10-08 (session 4: DNS cross-check)**
+**Last session: 2026-10-08 (session 4: DNS cross-check and the v0.2.0 release)**
 
 ### Done this session
-- Merged PR #2 (admin and zone tools) after all 5 CI checks passed.
-- Added the read-only DNS cross-check: `check_record_set_dns` and `check_zone_dns`.
-  - Queries go directly to the authoritative nameservers (non-recursive, UDP with TCP
-    fallback), and records on both sides are compared in canonical form.
-  - Statuses: `in_sync`, `ttl_mismatch`, `mismatch`, `missing_in_dns`, `error`, `skipped` (SOA).
-  - Notes cover nameservers that disagree, changes in progress, and non-authoritative answers.
-- New settings: `VINYLDNS_MCP_DNS_NAMESERVERS` and `VINYLDNS_MCP_DNS_TIMEOUT_SECS`.
-- Bug found and fixed while testing: nameserver discovery picked IPv6 addresses first, which
-  fails on IPv4-only hosts. IPv4 is now preferred.
-- Tests: 57 pass, plus 1 opt-in network test. Clippy reports no warnings; builds on Rust 1.89;
-  the Linux release cross-builds still work.
-  - The end-to-end tests run a fake authoritative DNS server (UDP and TCP) inside the test.
-  - Live against the quickstart's BIND: the whole `ok.` zone checked as 14 in sync and SOA
-    skipped. Real drift made with nsupdate was reported as `mismatch`, with the differing
-    values and TTL.
-  - Public-DNS discovery could only be partly checked here: the NS lookup worked, but this
-    sandbox intercepts outbound DNS.
-- Docs: README, TOOLS, CONFIGURATION, SECURITY, DEVELOPMENT, CHANGELOG, `--help`.
+- Merged PR #3 (DNS cross-check) after all 5 CI checks passed, including macOS and Windows
+  builds of the new DNS libraries.
+- DNS cross-check tools `check_record_set_dns` and `check_zone_dns`: direct authoritative
+  queries (UDP with TCP fallback) and canonical comparison, verified live against BIND,
+  including real drift made with nsupdate. Nameserver discovery now prefers IPv4.
+- Prepared v0.2.0: version bump, dated changelog, and README status. The HTTP transport moved
+  to v0.3.0, as decided by the owner.
+- Release workflow: a manual run from `main` can now create the tag itself, after every build
+  has passed. This is needed because this session cannot push tags, and it lets the owner
+  release without local git.
 
 ### Earlier (session 3: admin and zone tools)
 - Admin tier (`VINYLDNS_MCP_ENABLE_ADMIN`): batch approve/reject, zone connect/update/sync/delete,
@@ -40,17 +32,16 @@ _Updated at the end of every working session._
   private repository `Forenxics/vinyldns-mcp`.
 
 ### Next steps
-1. Review and merge the DNS cross-check PR (branch `feature/dns-cross-check`) once CI is green.
-2. Owner: create tag `v0.1.0` on GitHub (task 16c).
-3. Last v0.2.0 item: HTTP transport (22), which needs a per-user authentication design. Then
-   release v0.2.0, the first real run of the release workflow. Alternatively, release v0.2.0
-   now and move the HTTP transport to v0.3.0.
-4. Try it in Claude Code or Claude Desktop (task 17).
+1. Check the v0.2.0 release run: all 5 targets build, and the release page lists the archives
+   and `SHA256SUMS.txt`. Then mark tasks 16 and 16e Completed.
+2. Owner: create tag `v0.1.0` on commit `b88d355` (task 16c), so the changelog's 0.1.0 link works.
+3. Try it in Claude Code or Claude Desktop with a real user (task 17).
+4. v0.3.0: HTTP transport (task 22). This needs a per-user authentication design.
 
 ### Decisions
 - Private repository `Forenxics/vinyldns-mcp`.
 - SemVer and Keep a Changelog.
-- v0.2.0 scope: tasks 16, 19, 20, 22, 23.
+- v0.2.0 scope: tasks 16, 19, 20, 23. The HTTP transport (22) moved to v0.3.0 on 2026-10-08.
 - DNS cross-check queries authoritative servers directly (not the system resolver), so caches cannot hide drift.
 
 ### Known limitations

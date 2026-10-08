@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-08
+
+First release with prebuilt binaries.
+
 ### Added
 - Release workflow (`.github/workflows/release.yml`): on a `vX.Y.Z` tag (or a manual
   run), checks that the tag matches `Cargo.toml` and `CHANGELOG.md`, runs the tests,
@@ -44,6 +48,9 @@ All notable changes to this project are documented here. The format follows
 - Clearer hint for HTTP 403: VinylDNS also uses it for actions that aren't allowed right
   now (e.g. syncing a zone shortly after the last sync), not only for missing permissions.
 - End-to-end test helpers moved to `tests/common/`.
+- Release workflow: a manual run (Actions → Release → Run workflow) from `main` with a new
+  tag name now creates the tag itself, once every build has passed, so releasing needs no
+  local git. Tag names are validated, and existing tags are rebuilt as before.
 - GitHub Actions updated to Node 24 versions (`checkout@v7`, `upload-artifact@v7`,
   `download-artifact@v8`, `attest-build-provenance@v4`).
 
@@ -69,5 +76,6 @@ All notable changes to this project are documented here. The format follows
 - Unit tests, end-to-end MCP tests with a mocked VinylDNS, and a live smoke-test script.
 - Documentation: README, configuration, tools, security model, development guide.
 
-[Unreleased]: https://github.com/forenxics/vinyldns-mcp/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/forenxics/vinyldns-mcp/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/forenxics/vinyldns-mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/forenxics/vinyldns-mcp/releases/tag/v0.1.0

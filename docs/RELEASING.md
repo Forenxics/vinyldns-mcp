@@ -31,23 +31,27 @@ Enterprise Cloud.)
 3. Set `version = "X.Y.Z"` in `Cargo.toml` and run `cargo build`, so that
    `Cargo.lock` picks up the new version.
 4. Update `docs/TASKS.md` and `docs/PROJECT_STATUS.md`.
-5. Commit (`Release vX.Y.Z`) and push to `main`.
-6. Create the tag, using **one** of:
+5. Commit (`Release vX.Y.Z`), open a pull request, and merge it to `main` once CI is green.
+6. Start the release, using **one** of:
+   - **Actions → Release → Run workflow** on `main`, entering `vX.Y.Z` (recommended; no local
+     git needed). If the tag doesn't exist, the workflow creates it on `main`'s latest commit,
+     but only after every build has passed, so a failed release leaves no tag behind.
+     New tags can only be created this way from the default branch.
    - `git tag -a vX.Y.Z -m "vinyldns-mcp vX.Y.Z" && git push origin vX.Y.Z`
    - on GitHub: **Releases → Draft a new release → choose a tag → create `vX.Y.Z`
      on `main`**, then **Publish**. If the tag push doesn't start the workflow,
-     run it manually (next point).
-   - **Actions → Release → Run workflow**, with an existing tag.
+     run it manually as in the first option. With an existing tag, the run rebuilds that
+     tag's commit.
 7. Watch the **Release** workflow. It:
-   1. checks that the tag matches `Cargo.toml` and that `CHANGELOG.md` has a
-      section for it (otherwise it stops before building anything);
+   1. checks that the tag is a version (`vX.Y.Z` or `vX.Y.Z-suffix`), matches `Cargo.toml`, and
+      has a section in `CHANGELOG.md` (otherwise it stops before building anything);
    2. runs the test suite;
    3. builds the five targets and runs `--version` on the ones the runner can
       execute;
    4. packages them, writes `SHA256SUMS.txt`, and attests provenance (public
       repositories only);
-   5. creates the GitHub release with the changelog section as its notes, or
-      uploads the assets to the release if it already exists.
+   5. creates the GitHub release with the changelog section as its notes, and the tag too if
+      it is new; or uploads the assets to the release if it already exists.
 
 Tags with a pre-release suffix (`v0.2.0-rc.1`) are published as pre-releases.
 They also need a matching `Cargo.toml` version and changelog section.
