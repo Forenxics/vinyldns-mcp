@@ -17,6 +17,10 @@ tests/
 scripts/
   vinyldns_sig_reference.py   independent port of the server's signature check
   smoke_test.py               live test against a real VinylDNS
+  changelog_section.py        extracts release notes from CHANGELOG.md (+ its tests)
+.github/workflows/
+  ci.yml                      fmt, clippy, tests on Linux/macOS/Windows, MSRV, workflow lint
+  release.yml                 builds and publishes release binaries on version tags
 ```
 
 ## Everyday commands
@@ -101,5 +105,5 @@ Notes on running the quickstart in containers or CI:
   can change tool names or parameters.
 - [Keep a Changelog](https://keepachangelog.com) format in `CHANGELOG.md`.
   Add entries under **Unreleased** with each change.
-- To release: move the Unreleased entries to a new version heading, bump
-  `version` in `Cargo.toml`, commit, and tag `vX.Y.Z`.
+- The release process, the published binaries, and how to check the release
+  pipeline locally are described in [RELEASING.md](RELEASING.md).
