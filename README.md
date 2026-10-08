@@ -11,7 +11,7 @@ first and needs your explicit confirmation before it is applied.
 - **Read-only by default.** Write tools are only registered when `VINYLDNS_MCP_ENABLE_WRITES=true`; zone management and batch review tools also need `VINYLDNS_MCP_ENABLE_ADMIN=true`.
 - **Two-step writes.** `plan_*` tools validate the input, look up current state, and return a preview plus a single-use token. `confirm_change` applies it. Where the client supports [elicitation](https://modelcontextprotocol.io/specification/2025-06-18/client/elicitation), the user is asked directly in a confirmation dialog.
 
-> Status: **v0.1.0** (initial release). Tested against VinylDNS 0.20.2. See [CHANGELOG.md](CHANGELOG.md).
+> Status: **v0.2.0**: prebuilt binaries, zone and batch review tools, and a live DNS cross-check. Tested against VinylDNS 0.20.2. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Quick start
 
