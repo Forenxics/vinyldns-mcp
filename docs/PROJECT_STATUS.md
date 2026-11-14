@@ -2,11 +2,21 @@
 
 _Updated at the end of every working session._
 
-## Current state: v0.2.0 being released (first run of the release workflow)
+## Current state: v0.2.0 released (2026-11-14); next is v0.3.0 (HTTP transport)
 
-**Last session: 2026-10-08 (session 4: DNS cross-check and the v0.2.0 release)**
+**Last session: 2026-11-14 (session 5: v0.2.0 release check)**
 
 ### Done this session
+- The owner ran the Release workflow from `main` with `v0.2.0`. All 7 jobs passed on the first
+  attempt: validation and tests, 5 builds (`--version` checked on Linux musl, macOS ARM64 and
+  Windows), and publish.
+- The workflow created the `v0.2.0` tag on `970b67e` and published
+  https://github.com/Forenxics/vinyldns-mcp/releases/tag/v0.2.0 with 5 archives,
+  `SHA256SUMS.txt`, notes from the changelog, and build provenance attestations.
+- Checked independently: the Linux x86_64 archive downloads, matches `SHA256SUMS.txt`, contains
+  the binary, README, LICENSE and CHANGELOG, is fully static, and reports `vinyldns-mcp 0.2.0`.
+
+### Earlier (session 4: DNS cross-check and release preparation)
 - Merged PR #3 (DNS cross-check) after all 5 CI checks passed, including macOS and Windows
   builds of the new DNS libraries.
 - DNS cross-check tools `check_record_set_dns` and `check_zone_dns`: direct authoritative
@@ -32,11 +42,9 @@ _Updated at the end of every working session._
   private repository `Forenxics/vinyldns-mcp`.
 
 ### Next steps
-1. Check the v0.2.0 release run: all 5 targets build, and the release page lists the archives
-   and `SHA256SUMS.txt`. Then mark tasks 16 and 16e Completed.
-2. Owner: create tag `v0.1.0` on commit `b88d355` (task 16c), so the changelog's 0.1.0 link works.
-3. Try it in Claude Code or Claude Desktop with a real user (task 17).
-4. v0.3.0: HTTP transport (task 22). This needs a per-user authentication design.
+1. Owner: create tag `v0.1.0` on commit `b88d355` (task 16c), so the changelog's 0.1.0 link works.
+2. Try the released binary in Claude Code or Claude Desktop with a real user (task 17).
+3. v0.3.0: HTTP transport (task 22). This needs a per-user authentication design.
 
 ### Decisions
 - Private repository `Forenxics/vinyldns-mcp`.
