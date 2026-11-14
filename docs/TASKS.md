@@ -15,6 +15,7 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 2026-10-08 | PR #1 (release workflow, CI fixes) merged; admin and zone tools implemented (tasks 19, 20) |
 | 2026-10-08 | PR #2 (admin and zone tools) merged; DNS cross-check implemented (task 23) |
 | 2026-10-08 | PR #3 (DNS cross-check) merged; v0.2.0 release prepared; HTTP transport moved to v0.3.0 |
+| 2026-11-14 | **v0.2.0 released**: 5 prebuilt binaries, `SHA256SUMS.txt` and provenance attestations; first release workflow run passed on the first attempt |
 
 ## Tasks
 
@@ -35,8 +36,8 @@ When a task finishes, its stage is set to **Completed** and the date is recorded
 | 13 | CHANGELOG + SemVer process | Completed | 2026-10-04 |
 | 14 | CI workflow (fmt, clippy, test, build) | Completed | 2026-10-04 |
 | 15 | Create GitHub repository (private `Forenxics/vinyldns-mcp`) and push v0.1.0 | Completed | 2026-10-04 |
-| 16 | v0.2.0: release workflow with prebuilt binaries for Linux/macOS/Windows on tag | Testing (first real run: the v0.2.0 release) | |
-| 16e | Release workflow: manual run creates the tag after successful builds (the session cannot push tags) | Testing (first real run: the v0.2.0 release) | |
+| 16 | v0.2.0: release workflow with prebuilt binaries for Linux/macOS/Windows on tag | Completed | 2026-11-14 |
+| 16e | Release workflow: manual run creates the tag after successful builds (the session cannot push tags) | Completed | 2026-11-14 |
 | 16a | `--help` flag and stricter argument handling | Completed | 2026-10-04 |
 | 16b | CI: workflow lint (actionlint) and changelog script tests | Completed | 2026-10-04 |
 | 16d | Fix CI: MSRV 1.88 → 1.89 (uuid), actions moved to Node 24 versions | Completed | 2026-10-04 |
